@@ -23,7 +23,7 @@
 
     <properties>
 
-        <coceso.version>2.4.3-SNAPSHOT</coceso.version>
+        <coceso.version>2.4.4-SNAPSHOT</coceso.version>
     </properties>
 
     <dependencies>

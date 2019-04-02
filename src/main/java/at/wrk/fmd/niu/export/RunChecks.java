@@ -29,6 +29,7 @@ public class RunChecks {
         AlarmTextConfiguration alarmTextConfiguration = new AlarmTextConfiguration(
                 null,
                 null,
+                null,
                 "+436",
                 "+43",
                 null
@@ -72,6 +73,13 @@ public class RunChecks {
         statistics.stream()
                 .filter(x -> x.getValidNumbers() > 1)
                 .forEach(x -> System.out.println(x.getInfo() + ": " + x.getValidNumbers() + " valid numbers set"));
+
+        System.out.println();
+        System.out.println();
+        long usersWithAtLeastOneValidNumber = statistics.stream()
+                .filter(x -> x.getValidNumbers() >= 1)
+                .count();
+        System.out.println("Users with at least one valid number: " + usersWithAtLeastOneValidNumber);
     }
 
     private static CheckStatistics validate(final ExternalUser externalUser) {
