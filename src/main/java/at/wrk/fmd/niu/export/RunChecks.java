@@ -8,7 +8,6 @@ import at.wrk.coceso.niu.parser.NiuExternalUserParser;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -38,7 +37,7 @@ public class RunChecks {
         phoneNumberNormalizer = new PhoneNumberNormalizer(alarmTextConfiguration);
         NiuExternalUserParser externalUserParser = new NiuExternalUserParser();
 
-        FileInputStream inputStream = new FileInputStream(new File(args[0]));
+        FileInputStream inputStream = new FileInputStream(args[0]);
         List<String> lines = IOUtils.readLines(inputStream, StandardCharsets.UTF_8);
 
         String joinedLines = StringUtils.join(lines, "\n");
@@ -50,6 +49,19 @@ public class RunChecks {
                 .collect(Collectors.toList());
 
         printStatistics(statistics);
+
+        printJsonOfEachFirstValidNumber(statistics);
+    }
+
+    private static void printJsonOfEachFirstValidNumber(final List<CheckStatistics> statistics) {
+        System.out.println("JSON containing first valid number of each user: \n[");
+        String joinedNumbers = statistics
+                .stream()
+                .filter(item -> item.getFirstValidNumber().isPresent())
+                .map(item -> "  \"" + item.getFirstValidNumber().get() + "\"")
+                .collect(Collectors.joining(",\n"));
+        System.out.println(joinedNumbers);
+        System.out.println("]");
     }
 
     private static void printStatistics(final List<CheckStatistics> statistics) {
@@ -85,17 +97,25 @@ public class RunChecks {
     private static CheckStatistics validate(final ExternalUser externalUser) {
         int valid = 0;
         int invalid = 0;
+        String firstValidNumber = null;
 
         for (String telephoneNumber : externalUser.getTelephoneNumbers()) {
             String normalized = phoneNumberNormalizer.normalize(telephoneNumber);
             if (StringUtils.isNotBlank(normalized)) {
                 valid++;
+                if (firstValidNumber == null) {
+                    firstValidNumber = normalized;
+                }
             } else {
                 invalid++;
             }
         }
 
         ExternalUserId externalUserId = externalUser.getExternalUserId();
-        return new CheckStatistics(valid, invalid, externalUserId.getPersonellId() + " - " + externalUserId.getLastname());
+        return new CheckStatistics(
+                valid,
+                invalid,
+                externalUserId.getPersonellId() + " - " + externalUserId.getLastname() + " " + externalUser.getTelephoneNumbers(),
+                firstValidNumber);
     }
 }
