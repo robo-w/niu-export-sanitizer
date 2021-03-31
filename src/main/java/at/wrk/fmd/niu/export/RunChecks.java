@@ -55,13 +55,17 @@ public class RunChecks {
 
     private static void printJsonOfEachFirstValidNumber(final List<CheckStatistics> statistics) {
         System.out.println("JSON containing first valid number of each user: \n[");
-        String joinedNumbers = statistics
+        List<String> uniqueValidNumbers = statistics
                 .stream()
                 .filter(item -> item.getFirstValidNumber().isPresent())
-                .map(item -> "  \"" + item.getFirstValidNumber().get() + "\"")
-                .collect(Collectors.joining(",\n"));
-        System.out.println(joinedNumbers);
+                .map(item -> item.getFirstValidNumber().get())
+                .distinct()
+                .map(item -> "  \"" + item + "\"")
+                .collect(Collectors.toList());
+        System.out.println(StringUtils.join(uniqueValidNumbers, ",\n"));
         System.out.println("]");
+        System.out.println();
+        System.out.println("JSON contains " + uniqueValidNumbers.size() + " unique, valid numbers.");
     }
 
     private static void printStatistics(final List<CheckStatistics> statistics) {
